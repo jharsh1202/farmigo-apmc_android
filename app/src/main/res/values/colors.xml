@@ -3,4 +3,18 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+        <array name="colors">
+            <item>#346fff</item>
+            <item>#000235</item>
+            <item>#ff6444</item>
+            <item>#2f6534</item>
+            <item>#1ff4ff</item>
+            <item>#003300</item>
+            <item>#664444</item>
+            <item>#999324</item>
+            <item>#1f14ff</item>
+            <item>#000300</item>
+
+
+        </array>
 </resources>
