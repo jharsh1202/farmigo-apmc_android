@@ -8,9 +8,14 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.farmigosample.MainActivity.dataSets;
+import static com.example.farmigosample.MainActivity.removeLineChart;
+import static com.example.farmigosample.MainActivity.setLineChart;
 
 public class MyAdapter extends ArrayAdapter<StateVO> {
     private Context mContext;
@@ -75,6 +80,19 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                 if (!isFromView) {
                     listState.get(position).setSelected(isChecked);
                 }
+
+                if (holder.mCheckBox.isChecked()==true){
+                    MainActivity.APMCSelected =(String) holder.mTextView.getText();
+                    MainActivity.APMCindex.add(MainActivity.APMCSelected);
+                    setLineChart();
+                }
+                else{
+                    MainActivity.APMCSelected =(String) holder.mTextView.getText();
+
+                    removeLineChart(dataSets.indexOf(MainActivity.APMCSelected));
+                }
+
+
             }
         });
         return convertView;

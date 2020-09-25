@@ -24,30 +24,25 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     LineDataSet lineDataSetState1;
-    LineChart lineChart;
-    Cursor dataOnionPrice;
-    SQLiteDatabase sqLiteDatabase;
+    public static ArrayList<String> APMCindex=new ArrayList<>();
+    static LineChart lineChart;
+    static Cursor dataOnionPrice;
+    static SQLiteDatabase sqLiteDatabase;
     String stateSelected="null";
-    String APMCSelected="Mumbai";
-    ArrayList<ILineDataSet>dataSets=new ArrayList<>();;
-    LineData lineData;
-
-
+    public static String APMCSelected;
+    static ArrayList<ILineDataSet>dataSets=new ArrayList<>();;
+    static LineData lineData;
 
     String[] states = { "Maharashtra", "Madhya Pradesh", "Karnataka", "Gujrat"};
     String[] months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
     String[] apmcmarkets = { "Select APMC","Mumbai", "Pune", "Nagpur", "Bhopal", "Indore" , "Bangalore",
             "Belagavi", "Mysore","Surat","Ahmedabad"};
-
-
-
-
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,18 +74,20 @@ public class MainActivity extends AppCompatActivity {
 
         //for LineChart customization
         configureLineChart();
-
-        APMCSelected();
+        sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
+        //APMCSelected();
 
     }
+
 
     void APMCSelected(){
         APMCSelected="Nagpur";
         setLineChart();
     }
 
-    protected ArrayList<Entry>State() {
-        sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
+
+    static protected ArrayList<Entry>State() {
+
         ArrayList<Entry> dataVals=new ArrayList<Entry>();
 
         if(APMCSelected!=null)
@@ -113,9 +110,15 @@ public class MainActivity extends AppCompatActivity {
         return dataVals;
     }
 
-    void setLineChart(){
-
+    static void setLineChart(){
         dataSets.add(new LineDataSet(State(),APMCSelected));
+        lineData=new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.invalidate();
+    }
+
+    static void removeLineChart(int a){
+        dataSets.remove(a+1);
         lineData=new LineData(dataSets);
         lineChart.setData(lineData);
         lineChart.invalidate();
@@ -313,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    int monthToNumerical(String month){
+    static int  monthToNumerical(String month){
         switch (month){
             case "Jan": return 0;
             case "Feb": return 1;
