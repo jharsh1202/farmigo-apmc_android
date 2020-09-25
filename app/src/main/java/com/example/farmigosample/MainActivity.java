@@ -2,15 +2,13 @@ package com.example.farmigosample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.view.MenuItem;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -25,34 +23,33 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Locale;
-
-import javax.crypto.AEADBadTagException;
 
 public class MainActivity extends AppCompatActivity {
     static LineDataSet lineDataSetState1;
-    static HashMap<String, LineDataSet> APMCindex= new HashMap<>();
+    static HashMap<String, LineDataSet> APMCindex = new HashMap<>();
     static LineChart lineChart;
     static Cursor dataOnionPrice;
     static SQLiteDatabase sqLiteDatabase;
     public static String APMCSelected;
-    static ArrayList<ILineDataSet>dataSets=new ArrayList<>();;
+    public static int positionSelected;
+    static ArrayList<ILineDataSet> dataSets = new ArrayList<>();
     static LineData lineData;
     static TypedArray ta;
     static int[] colors;
+    static ArrayList<Entry> dataVals;
     Spinner spinner;
-
-    String[] apmcmarkets = { "Select APMC","Mumbai", "Pune", "Nagpur", "Bhopal", "Indore" , "Bangalore",
-            "Belagavi", "Mysore","Surat","Ahmedabad"};
+    static String[] apmcmarkets;
+    static String[] apmcs={"Select_APMC","Mumbai","Pune","Nagpur","Bhopal","Indore","Bangalore",
+            "Belagavi","Mysore","Ahmedabad", "Surat"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         lineChart = findViewById(R.id.graphss);
+        MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
 
         //APMC Spinner Data
         setAPMCSpinner();
@@ -63,21 +60,96 @@ public class MainActivity extends AppCompatActivity {
         //Adding Onion Price data to local database
         try {
             sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
-        }
-        catch (Exception e){
+            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
+        } catch (Exception e) {
             databaseSetup();
             sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
             dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (int i = 0; i < apmcs.length; i++) {
+            MyAdapter.listState.get(i).setSelected(false);
+            removeLineChart(apmcs[i]);
+            APMCindex.clear();
+            dataVals.clear();
+            dataSets.clear();
+            lineData = new LineData(dataSets);
+            MainActivity.lineChart.setData(lineData);
+        }
 
-    void setAPMCSpinner(){
-        spinner =findViewById(R.id.spinner);
+        MainActivity.lineChart.clear();
+        MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
+    }
+
+    static void setLineChart() {
+        lineDataSetState1 = new LineDataSet(State(), apmcmarkets[positionSelected]);
+        APMCindex.put(APMCSelected, lineDataSetState1);
+        lineDataSetState1.setLineWidth(2);
+        for (int i = 0; i < dataSets.size(); i++) {
+            colors[i] = ta.getColor(i, 0);
+            lineDataSetState1.setColor(colors[i]);
+        }
+        dataSets.add(lineDataSetState1);
+        lineData = new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.invalidate();
+
+    }
+
+    public static void removeLineChart(String a) {
+        try {
+            if (!dataSets.isEmpty())
+            {
+                dataSets.remove(APMCindex.get(a));
+                APMCindex.remove(APMCindex.get(a));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        lineChart.clear();
+        lineData = new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.invalidate();
+    }
+
+    static protected ArrayList<Entry> State() {
+
+        dataVals = new ArrayList<Entry>();
+
+        if (APMCSelected != null)
+            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where apmc = " + '"' + APMCSelected + '"', null);
+        else
+            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
+
+        int monthIndex = dataOnionPrice.getColumnIndex("month");
+        int priceIndex = dataOnionPrice.getColumnIndex("price");
+
+        dataOnionPrice.moveToFirst();
+
+        while (!dataOnionPrice.isAfterLast()) {
+            dataVals.add(new Entry(monthToNumerical(dataOnionPrice.getString(monthIndex)), dataOnionPrice.getInt(priceIndex)));
+            dataOnionPrice.moveToNext();
+        }
+        return dataVals;
+    }
+
+    void setAPMCSpinner() {
+        apmcmarkets = new String[]{getResources().getString(R.string.select_APMC),
+                getResources().getString(R.string.mumbai),getResources().getString(R.string.pune),
+                getResources().getString(R.string.nagpur),getResources().getString(R.string.bhopal),
+                getResources().getString(R.string.indore),getResources().getString(R.string.bangalore),
+                getResources().getString(R.string.belagavi),getResources().getString(R.string.mysore),
+                getResources().getString(R.string.ahmedabad),getResources().getString(R.string.surat)};
+
+        spinner = findViewById(R.id.spinner);
         ArrayList<StateVO> listVOs = new ArrayList<>();
         ta = this.getResources().obtainTypedArray(R.array.colors);
         colors = new int[ta.length()];
-            for(int i=0; i<apmcmarkets.length ;i++) {
+        for (int i = 0; i < apmcmarkets.length; i++) {
             StateVO stateVO = new StateVO();
             stateVO.setTitle(apmcmarkets[i]);
             stateVO.setSelected(false);
@@ -87,68 +159,17 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(myAdapter);
     }
 
-    static protected ArrayList<Entry>State() {
-
-        ArrayList<Entry> dataVals=new ArrayList<Entry>();
-
-        if(APMCSelected!=null)
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where apmc = "+'"'+APMCSelected+'"', null);
-        else
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
-
-        int idIndex = dataOnionPrice.getColumnIndex("id");
-        int stateIndex = dataOnionPrice.getColumnIndex("state");
-        int apmcIndex = dataOnionPrice.getColumnIndex("apmc");
-        int monthIndex = dataOnionPrice.getColumnIndex("month");
-        int priceIndex = dataOnionPrice.getColumnIndex("price");
-
-        dataOnionPrice.moveToFirst();
-
-        while (!dataOnionPrice.isAfterLast()) {
-            dataVals.add(new Entry(monthToNumerical(dataOnionPrice.getString(monthIndex)),dataOnionPrice.getInt(priceIndex)));
-            dataOnionPrice.moveToNext();
-        }
-        return dataVals;
-    }
-
-    static void setLineChart(){
-        lineDataSetState1=new LineDataSet(State(),APMCSelected);
-        APMCindex.put(APMCSelected,lineDataSetState1);
-        lineDataSetState1.setLineWidth(2);
-        for (int i = 0; i < dataSets.size(); i++) {
-            colors[i] = ta.getColor(i, 0);
-            lineDataSetState1.setColor(colors[i]);
-        }
-        dataSets.add(lineDataSetState1);
-        lineData=new LineData(dataSets);
-        lineChart.setData(lineData);
-        lineChart.invalidate();
-
-    }
-
-    public static void removeLineChart(String a){
-        try{
-            if (!dataSets.isEmpty())
-                dataSets.remove(APMCindex.get(a));
-        }
-        catch(Exception e){
-            e.printStackTrace();
-        }
-        lineData=new LineData(dataSets);
-        lineChart.setData(lineData);
-        lineChart.invalidate();
-    }
-
     private void configureLineChart() {
         Description desc = new Description();
-        desc.setText("Onion Market Price History");
+        MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
+        desc.setText(getResources().getString(R.string.linechertdesc));
         desc.setTextSize(16);
         lineChart.setDescription(desc);
 
 
         XAxis xAxis = lineChart.getXAxis();
         xAxis.setValueFormatter(new ValueFormatter() {
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
 
             @Override
             public String getFormattedValue(float value) {
@@ -157,15 +178,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        for (int i=0;i<dataSets.size();i++){
+        for (int i = 0; i < dataSets.size(); i++) {
             dataSets.get(i).getColor(1);
         }
-        //lineDataSetState2.setColor(R.color.colorPrimary);
-        //lineDataSetState2.setLineWidth(3);
-        //lineDataSetState1.setLineWidth(3);
     }
 
-    void databaseSetup(){
+    void databaseSetup() {
 //        try {
 //            SQLiteDatabase onionDatabase=this.openOrCreateDatabase("onionpricek",MODE_PRIVATE,null);
 //            onionDatabase.execSQL("CREATE TABLE if not exists onionprices(id integer,state text,apmc text,month text,price integer)");
@@ -181,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
 
             SQLiteDatabase sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
             sqLiteDatabase.execSQL("CREATE TABLE IF NOT EXISTS onionprice2019 ( id INT(5)," +
-                    " state Varchar(20), apmc Varchar(20),month varchar(5),price int(8))" );
+                    " state Varchar(20), apmc Varchar(20),month varchar(5),price int(8))");
 
             sqLiteDatabase.execSQL("INSERT INTO onionprice2019 (id, state, apmc, month, price) VALUES (1, 'Maharashtra', 'Mumbai', 'Jan', 663)");
             sqLiteDatabase.execSQL("INSERT INTO onionprice2019 (id, state, apmc, month, price) VALUES (2, 'Maharashtra', 'Mumbai', 'Feb', 552)");
@@ -309,21 +327,34 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    static int  monthToNumerical(String month){
-        switch (month){
-            case "Jan": return 0;
-            case "Feb": return 1;
-            case "Mar": return 2;
-            case "Apr": return 3;
-            case "May": return 4;
-            case "Jun": return 5;
-            case "Jul": return 6;
-            case "Aug": return 7;
-            case "Sep": return 8;
-            case "Oct": return 9;
-            case "Nov": return 10;
-            case "Dec": return 11;
-            default: return 12;
+    static int monthToNumerical(String month) {
+        switch (month) {
+            case "Jan":
+                return 0;
+            case "Feb":
+                return 1;
+            case "Mar":
+                return 2;
+            case "Apr":
+                return 3;
+            case "May":
+                return 4;
+            case "Jun":
+                return 5;
+            case "Jul":
+                return 6;
+            case "Aug":
+                return 7;
+            case "Sep":
+                return 8;
+            case "Oct":
+                return 9;
+            case "Nov":
+                return 10;
+            case "Dec":
+                return 11;
+            default:
+                return 12;
         }
     }
 }

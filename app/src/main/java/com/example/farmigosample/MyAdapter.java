@@ -1,6 +1,7 @@
 package com.example.farmigosample;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,18 +9,33 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+
+
+import com.github.mikephil.charting.data.LineData;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.farmigosample.MainActivity.APMCSelected;
+import static com.example.farmigosample.MainActivity.APMCindex;
+import static com.example.farmigosample.MainActivity.apmcs;
 import static com.example.farmigosample.MainActivity.dataSets;
+import static com.example.farmigosample.MainActivity.lineData;
+import static com.example.farmigosample.MainActivity.removeLineChart;
 import static com.example.farmigosample.MainActivity.setLineChart;
 
 public class MyAdapter extends ArrayAdapter<StateVO> {
+
+    private class ViewHolder {
+        private TextView mTextView;
+        private CheckBox mCheckBox;
+    }
+
     private Context mContext;
-    private ArrayList<StateVO> listState;
+    public static ArrayList<StateVO> listState;
     private MyAdapter myAdapter;
     private boolean isFromView = false;
+    Resources res = getContext().getResources();
 
     public MyAdapter(Context context, int resource, List<StateVO> objects) {
         super(context, resource, objects);
@@ -29,8 +45,7 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
     }
 
     @Override
-    public View getDropDownView(int position, View convertView,
-                                ViewGroup parent) {
+    public View getDropDownView(int position, View convertView,ViewGroup parent) {
         return getCustomView(position, convertView, parent);
     }
 
@@ -39,20 +54,18 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
         return getCustomView(position, convertView, parent);
     }
 
-    public View getCustomView(final int position, View convertView,
-                              ViewGroup parent) {
+    public View getCustomView(final int position, View convertView,ViewGroup parent) {
 
         final ViewHolder holder;
         if (convertView == null) {
             LayoutInflater layoutInflator = LayoutInflater.from(mContext);
             convertView = layoutInflator.inflate(R.layout.listviewcheckboxitems, null);
             holder = new ViewHolder();
-            holder.mTextView = (TextView) convertView
-                    .findViewById(R.id.text);
-            holder.mCheckBox = (CheckBox) convertView
-                    .findViewById(R.id.checkbox);
+            holder.mTextView = convertView.findViewById(R.id.text);
+            holder.mCheckBox = convertView.findViewById(R.id.checkbox);
             convertView.setTag(holder);
-        } else {
+        }
+        else {
             holder = (ViewHolder) convertView.getTag();
         }
 
@@ -78,23 +91,39 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                 if (!isFromView) {
                     listState.get(position).setSelected(isChecked);
                     if (holder.mCheckBox.isChecked()==true ){
-                        MainActivity.APMCSelected =listState.get(position).getTitle();
-                            MainActivity.APMCindex.get(MainActivity.APMCSelected);
-                            setLineChart();
+                        MainActivity.APMCSelected = apmcs[position];
+                        MainActivity.positionSelected=position; //for APMC Label in setLineChart()
+                        //MainActivity.APMCindex.get(MainActivity.APMCSelected);
+                        setLineChart();
                     }
                     else if(holder.mCheckBox.isChecked()==false ){
-                        MainActivity.APMCSelected = listState.get(position).getTitle();
-                            MainActivity.removeLineChart(APMCSelected);
-                            MainActivity.APMCindex.remove(APMCSelected);
+                        //MainActivity.positionSelected=position;
+                        MainActivity.APMCSelected = apmcs[position];
+                            removeLineChart(APMCSelected);
                     }
                 }
+
+                boolean dataPresent=false;
+                for (int i = 0; i < apmcs.length; i++) {
+                       if (listState.get(i).isSelected()){
+                            dataPresent=true;
+                       }
+                }
+                if (!dataPresent){
+                    APMCindex.clear();
+                    MainActivity.dataVals.clear();
+                    dataSets.clear();
+                    lineData = new LineData(dataSets);
+                    MainActivity.lineChart.setData(lineData);
+                    MainActivity.lineChart.clear();
+                    MainActivity.lineChart.setNoDataText(res.getString(R.string.apmcnotselected));
+                }
+
+
             }
         });
         return convertView;
     }
 
-    private class ViewHolder {
-        private TextView mTextView;
-        private CheckBox mCheckBox;
-    }
+
 }

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <string name="app_name"> फारमिगो सैम्पल </string>
+        <string name="apmc">मंडी</string>
+        <string name="apmcnotselected">कृपया मंडी चुने</string>
+        <string name="linechertdesc">प्याज बाजार मूल्य इतिहास</string>
+        <string name="select_APMC">मंडी चुने</string>
+        <string name="mumbai">मुंबई</string>
+        <string name="pune">पुणे</string>
+        <string name="nagpur">नागपुर</string>
+        <string name="bhopal">भोपाल</string>
+        <string name="indore">इंदौर </string>
+        <string name="bangalore">बँगलोर</string>
+        <string name="belagavi">बेलगावी</string>
+        <string name="mysore"> मैसूर</string>
+        <string name="surat">सूरत</string>
+        <string name="ahmedabad">अहमदाबाद</string>
+
+</resources>
