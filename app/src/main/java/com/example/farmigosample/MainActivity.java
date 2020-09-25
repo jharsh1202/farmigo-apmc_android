@@ -6,7 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -25,30 +28,73 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     LineDataSet lineDataSetState1;
-    LineDataSet lineDataSetState2;
-    Spinner spinnerStates,spinnerStartMonth,spinnerEndMonth,spinnerAPMC;
     LineChart lineChart;
     Cursor dataOnionPrice;
     SQLiteDatabase sqLiteDatabase;
-    String stateSelected=null;
-    String APMCSelected=null;
+    String stateSelected="null";
+    String APMCSelected="Mumbai";
+    ArrayList<ILineDataSet>dataSets=new ArrayList<>();;
+    LineData lineData;
+
 
 
     String[] states = { "Maharashtra", "Madhya Pradesh", "Karnataka", "Gujrat"};
     String[] months = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
-    String[] apmcmarkets = { "Mumbai", "Pune", "Nagpur", "Bhopal", "Indore" , "Bangalore",
+    String[] apmcmarkets = { "Select APMC","Mumbai", "Pune", "Nagpur", "Bhopal", "Indore" , "Bangalore",
             "Belagavi", "Mysore","Surat","Ahmedabad"};
 
-    protected ArrayList<Entry>State1() {
+
+
+
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        //databaseSetup();
+
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+
+        ArrayList<StateVO> listVOs = new ArrayList<>();
+
+        for(int i=0; i<apmcmarkets.length ;i++) {
+            StateVO stateVO = new StateVO();
+            stateVO.setTitle(apmcmarkets[i]);
+            stateVO.setSelected(false);
+            listVOs.add(stateVO);
+        }
+        MyAdapter myAdapter = new MyAdapter(MainActivity.this, 0,
+                listVOs);
+        spinner.setAdapter(myAdapter);
+
+
+        lineChart = findViewById(R.id.graphss);
+
+
+        //adding data to lineChart
+
+
+        //for LineChart customization
+        configureLineChart();
+
+        APMCSelected();
+
+    }
+
+    void APMCSelected(){
+        APMCSelected="Nagpur";
+        setLineChart();
+    }
+
+    protected ArrayList<Entry>State() {
         sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
         ArrayList<Entry> dataVals=new ArrayList<Entry>();
 
-        /*if(stateSelected!=null)
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where state = "+'"'+stateSelected+'"', null);
-        else
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);*/
-        if(stateSelected!=null)
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where state = "+'"'+stateSelected+'"', null);
+        if(APMCSelected!=null)
+            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where apmc = "+'"'+APMCSelected+'"', null);
         else
             dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
 
@@ -57,91 +103,24 @@ public class MainActivity extends AppCompatActivity {
         int apmcIndex = dataOnionPrice.getColumnIndex("apmc");
         int monthIndex = dataOnionPrice.getColumnIndex("month");
         int priceIndex = dataOnionPrice.getColumnIndex("price");
-        dataOnionPrice.moveToFirst(); //ColumnIndexes
-        while (!dataOnionPrice.isAfterLast()) {
-            Log.i("Results - id", Integer.toString(dataOnionPrice.getInt(idIndex)));
-            Log.i("Results - month", dataOnionPrice.getString(monthIndex));
-            Log.i("Results - price", Integer.toString(dataOnionPrice.getInt(priceIndex)));
 
-            dataVals.add(new Entry(dataOnionPrice.getInt(idIndex),dataOnionPrice.getInt(priceIndex)));
+        dataOnionPrice.moveToFirst();
+
+        while (!dataOnionPrice.isAfterLast()) {
+            dataVals.add(new Entry(monthToNumerical(dataOnionPrice.getString(monthIndex)),dataOnionPrice.getInt(priceIndex)));
             dataOnionPrice.moveToNext();
         }
         return dataVals;
     }
 
-    /*protected ArrayList<Entry>State2(){
-        ArrayList<Entry> dataVals=new ArrayList<Entry>();
-        dataVals.add(new Entry(10,90));
-        dataVals.add(new Entry(20,30));
-        dataVals.add(new Entry(30,40));
-        dataVals.add(new Entry(70,70));
-        return dataVals;
-    }*/
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        /*//database setup
-        databaseSetup();*/
-        /*//print database in log
-        logDatabase();*/
-
-        lineChart = findViewById(R.id.graphss);
-        spinnerStates = findViewById(R.id.spinnerStates);
-        spinnerStartMonth = findViewById(R.id.spinnerStartMonth);
-        spinnerEndMonth = findViewById(R.id.spinnerEndMonth);
-        spinnerAPMC = findViewById(R.id.spinnerAPMC);
-
-        lineDataSetState1=new LineDataSet(State1(),"State1");
-        //lineDataSetState2=new LineDataSet(State2(),"State2");
-
-        //for LineChart customization
-        configureLineChart();
-        //adding data to spinner
-        setSpinnerData();
-        //adding data to lineChart
-        setLineChart();
-        StateFilter();
-    }
-
-
-
-
-    void StateFilter(){
-        stateSelected="Maharashtra";     //state selected
-    }
-
-    void APMCFilter(){
-        APMCSelected="Mumbai";
-    }
-
-
     void setLineChart(){
-        ArrayList<ILineDataSet>dataSets=new ArrayList<>();
-        dataSets.add(lineDataSetState1);
-        //dataSets.add(lineDataSetState2);
-        LineData lineData=new LineData(dataSets);
+
+        dataSets.add(new LineDataSet(State(),APMCSelected));
+        lineData=new LineData(dataSets);
         lineChart.setData(lineData);
         lineChart.invalidate();
     }
-    void setSpinnerData(){
-        ArrayAdapter<String> States = new ArrayAdapter(this, android.R.layout.simple_spinner_item, states);
-        ArrayAdapter<String> Apmcmarkets = new ArrayAdapter(this, android.R.layout.simple_spinner_item, apmcmarkets);
-        ArrayAdapter<String> Months = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months);
 
-        States.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerStates.setAdapter(States);
-
-        Months.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerStartMonth.setAdapter(Months);
-        spinnerEndMonth.setAdapter(Months);
-
-        Apmcmarkets.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerAPMC.setAdapter(Apmcmarkets);
-    }
     private void configureLineChart() {
         Description desc = new Description();
         desc.setText("Onion Market Price History");
@@ -162,8 +141,11 @@ public class MainActivity extends AppCompatActivity {
 
         //lineDataSetState2.setColor(R.color.colorPrimary);
         //lineDataSetState2.setLineWidth(3);
-        lineDataSetState1.setLineWidth(3);
+        //lineDataSetState1.setLineWidth(3);
     }
+
+
+
 
 
 
@@ -348,4 +330,28 @@ public class MainActivity extends AppCompatActivity {
             default: return 12;
         }
     }
+
+        /*protected ArrayList<Entry>State2(){
+        ArrayList<Entry> dataVals=new ArrayList<Entry>();
+        dataVals.add(new Entry(10,90));
+        dataVals.add(new Entry(20,30));
+        dataVals.add(new Entry(30,40));
+        dataVals.add(new Entry(70,70));
+        return dataVals;
+    }*/
+        /*    void setSpinnerData(){
+        ArrayAdapter<String> States = new ArrayAdapter(this, android.R.layout.simple_spinner_item, states);
+        ArrayAdapter<String> Apmcmarkets = new ArrayAdapter(this, android.R.layout.simple_spinner_item, apmcmarkets);
+        ArrayAdapter<String> Months = new ArrayAdapter(this, android.R.layout.simple_spinner_item, months);
+
+        States.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStates.setAdapter(States);
+
+        Months.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerStartMonth.setAdapter(Months);
+        spinnerEndMonth.setAdapter(Months);
+
+        Apmcmarkets.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerAPMC.setAdapter(Apmcmarkets);
+    }*/
 }
