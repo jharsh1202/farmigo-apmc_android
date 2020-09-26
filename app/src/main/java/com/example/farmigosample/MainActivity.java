@@ -123,20 +123,26 @@ public class MainActivity extends AppCompatActivity {
         radioButtonAPMC=findViewById(R.id.radioButtonAPMC);
         getRadioButtonState=findViewById(R.id.radioButtonState);
         spinnerAPMC.setEnabled(false);
+        spinnerAPMC.setVisibility(View.INVISIBLE);
         spinnerState.setEnabled(false);
+        spinnerState.setVisibility(View.INVISIBLE);
 
         radioButtonAPMC.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 spinnerAPMC.setEnabled(true);
+                spinnerAPMC.setVisibility(View.VISIBLE);
                 spinnerState.setEnabled(false);
+                spinnerState.setVisibility(View.INVISIBLE);
             }
         });
         getRadioButtonState.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                spinnerState.setEnabled(true);
                 spinnerAPMC.setEnabled(false);
+                spinnerAPMC.setVisibility(View.INVISIBLE);
+                spinnerState.setEnabled(true);
+                spinnerState.setVisibility(View.VISIBLE);
             }
         });
     }
