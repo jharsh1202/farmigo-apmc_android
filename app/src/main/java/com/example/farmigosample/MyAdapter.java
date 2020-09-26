@@ -21,6 +21,7 @@ import java.util.Locale;
 import static com.example.farmigosample.MainActivity.APMCSelected;
 import static com.example.farmigosample.MainActivity.APMCindex;
 import static com.example.farmigosample.MainActivity.HindiState;
+import static com.example.farmigosample.MainActivity.Stateindex;
 import static com.example.farmigosample.MainActivity.dataSets;
 import static com.example.farmigosample.MainActivity.lineChart;
 import static com.example.farmigosample.MainActivity.lineData;
@@ -109,41 +110,51 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                             setLineChartState();
                     }
                     else if(!holder.mCheckBox.isChecked() ){
-                        if(dataSets.size()==0){
-                            lineChart.clear();
-                        }
+
                         if(Locale.getDefault().getDisplayLanguage().equals("English"))
                             MainActivity.APMCSelected = listAPMC.get(position).getTitle();
                         else
                             MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
-                        if(listAPMC.size()>5)
+                        if(listAPMC.size()>5){
                             removeLineChart(APMCSelected);
-                        else
+                            checkEmpty();
+                        }
+                        else{
                             removeLineChartState(APMCSelected);
+                            checkEmpty();
+                        }
                     }
-                }
-
-                //if Empty
-                boolean dataPresent=false;
-                for (int i = 0; i < listAPMC.size(); i++) {
-                       if (listAPMC.get(i).isSelected()){
-                            dataPresent=true;
-                       }
-                }
-                if (!dataPresent){
-                    APMCindex.clear();
-                    MainActivity.dataVals.clear();
-                    dataSets.clear();
-                    lineData = new LineData(dataSets);
-                    MainActivity.lineChart.setData(lineData);
-                    if(MainActivity.APMCindex.isEmpty() && MainActivity.Stateindex.isEmpty()){
-                        lineChart.clear();
-                        lineChart.setNoDataText(res.getString(R.string.apmcnotselected));}
+                    /*//if Empty
+                    boolean dataPresent=false;
+                    if (APMCindex.size()>0 || Stateindex.size()>0)
+                        dataPresent=true;
+                    if (!dataPresent){
+                        MainActivity.dataVals.clear();
+                        dataSets.clear();
+                        lineData = new LineData(dataSets);
+                        MainActivity.lineChart.setData(lineData);
+                        if(MainActivity.APMCindex.isEmpty() && MainActivity.Stateindex.isEmpty()){
+                            //lineChart.clear();
+                            lineChart.setNoDataText(res.getString(R.string.apmcnotselected));
+                        }
+                    }*/
 
                 }
+
+
+
+
+
             }
+
         });
         return convertView;
+    }
+    void checkEmpty(){
+        Log.i("APMCSize",APMCindex.size()+"a");
+        if (APMCindex.isEmpty() && Stateindex.isEmpty()){
+            lineChart.clear();
+        }
     }
 
 

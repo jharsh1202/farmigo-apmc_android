@@ -6,6 +6,7 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RadioButton;
 import android.widget.Spinner;
@@ -34,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     public static int positionSelected;
     static ArrayList<ILineDataSet> dataSets = new ArrayList<>();
     static LineData lineData;
-    static TypedArray ta;
+    static TypedArray APMCcolors,Statescolors;
     static int[] colors;
     static ArrayList<Entry> dataVals;
     Spinner spinnerAPMC,spinnerState;
@@ -48,9 +49,6 @@ public class MainActivity extends AppCompatActivity {
     static String[] MadhyaPradesh={"Bhopal","Indore"};
     static String[] Karnataka={"Mysore","Belagavi","Bangalore"};
     static String[] Gujarat={"Surat","Ahmedabad"};
-
-
-
 
 
     @Override
@@ -110,7 +108,7 @@ public class MainActivity extends AppCompatActivity {
         APMCindex.put(APMCSelected, lineDataSetState1);
         lineDataSetState1.setLineWidth(2);
         for (int i = 0; i < dataSets.size(); i++) {
-            colors[i] = ta.getColor(i, 0);
+            colors[i] = APMCcolors.getColor(i, 0);
             lineDataSetState1.setColor(colors[i]);
         }
         dataSets.add(lineDataSetState1);
@@ -163,14 +161,19 @@ public class MainActivity extends AppCompatActivity {
 
         for (String M:setState(APMCSelected)){
             APMCSelected=M;
+
+            //creating line data object
             if(count++==setState(State).length-1)
                 lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
             else
-                lineDataSetState2 = new LineDataSet(APMC(),"");
+                {
+                    lineDataSetState2 = new LineDataSet(APMC(),"");
+                }
+
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
             int i=positionSelected;
-            colors[i] = ta.getColor(i, 0);
+            colors[i] = Statescolors.getColor(i, 0);
             lineDataSetState2.setColor(colors[i]);
             dataSets.add(lineDataSetState2);
         }
@@ -195,20 +198,18 @@ public class MainActivity extends AppCompatActivity {
         HindiState.put("कर्नाटक","Karnataka");
         HindiState.put("गुजरात","Gujarat");
         HindiState.put("मध्यप्रदेश","Madhya Pradesh");
-
     }
 
-    public static void removeLineChart(String a) {
+    public static void removeLineChart(String APMC) {
         try {
             if (!dataSets.isEmpty())
             {
-                dataSets.remove(APMCindex.get(a));
-                APMCindex.remove(APMCindex.get(a));
+                dataSets.remove(APMCindex.get(APMC));
+                APMCindex.remove(APMC);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        lineChart.clear();
         lineData = new LineData(dataSets);
         lineChart.setData(lineData);
         lineChart.invalidate();
@@ -218,17 +219,14 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (!dataSets.isEmpty())
             {
-                Stateindex.remove(state);
                 for (String APMC:setState(state)) {
                     dataSets.remove(Stateindex.get(APMC));
-                    APMCindex.remove(Stateindex.get(APMC));
+                    Stateindex.remove(APMC);
                 }
-                Stateindex.remove(state);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        lineChart.clear();
         lineData = new LineData(dataSets);
         lineChart.setData(lineData);
         lineChart.invalidate();
@@ -255,7 +253,6 @@ public class MainActivity extends AppCompatActivity {
         return dataVals;
     }
 
-
     void setAPMCSpinner() {
         apmcmarkets = new String[]{getResources().getString(R.string.select_APMC),
                 getResources().getString(R.string.mumbai),getResources().getString(R.string.pune),
@@ -266,8 +263,8 @@ public class MainActivity extends AppCompatActivity {
 
         spinnerAPMC = findViewById(R.id.spinnerAPMC);
         listAPMC = new ArrayList<>();
-        ta = this.getResources().obtainTypedArray(R.array.colors);
-        colors = new int[ta.length()];
+        APMCcolors = this.getResources().obtainTypedArray(R.array.colors);
+        colors = new int[APMCcolors.length()];
         for (int i = 0; i < apmcmarkets.length; i++) {
             StateVO stateAPMC = new StateVO();
             stateAPMC.setTitle(apmcmarkets[i]);
@@ -285,8 +282,8 @@ public class MainActivity extends AppCompatActivity {
 
         spinnerState = findViewById(R.id.spinnerState);
         listState = new ArrayList<>();
-        ta = this.getResources().obtainTypedArray(R.array.colors);
-        colors = new int[ta.length()];
+        Statescolors = this.getResources().obtainTypedArray(R.array.colorsStates);
+        colors = new int[APMCcolors.length()];
         for (int i = 0; i < states.length; i++) {
             StateVO state = new StateVO();
             state.setTitle(states[i]);

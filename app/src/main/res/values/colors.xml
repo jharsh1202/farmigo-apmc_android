@@ -5,16 +5,21 @@
     <color name="colorAccent">#03DAC5</color>
         <array name="colors">
             <item>#346fff</item>
-            <item>#000235</item>
-            <item>#ff6444</item>
-            <item>#2f6534</item>
+            <item>#FFD740</item>
+            <item>#FF80AB</item>
+            <item>#11D423</item>
             <item>#1ff4ff</item>
             <item>#003300</item>
             <item>#664444</item>
             <item>#999324</item>
             <item>#1f14ff</item>
-            <item>#000300</item>
-
-
+            <item>#FF5252</item>
         </array>
+    <array name="colorsStates">
+        <item>#D50000</item>
+        <item>#C51162</item>
+        <item>#AA00FF</item>
+        <item>#6200EA</item>
+        <item>#304FFE</item>
+    </array>
 </resources>
