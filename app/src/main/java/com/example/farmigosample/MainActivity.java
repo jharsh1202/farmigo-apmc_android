@@ -162,14 +162,11 @@ public class MainActivity extends AppCompatActivity {
         String State=APMCSelected;
 
         for (String M:setState(APMCSelected)){
-            if(count==1){
-                lineDataSetState2 = new LineDataSet(APMC(), State);
-                lineChart.getLegend().setEnabled(true);
-                count++;
-            }
             APMCSelected=M;
-            lineDataSetState2 = new LineDataSet(APMC(), "");
-            lineChart.getLegend().setEnabled(true);
+            if(count++==setState(State).length-1)
+                lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
+            else
+                lineDataSetState2 = new LineDataSet(APMC(),"");
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
             int i=positionSelected;
