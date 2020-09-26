@@ -493,6 +493,7 @@ public class MainActivity extends AppCompatActivity {
     void StartChooseLangActivity(){
         Intent intent=new Intent(getApplicationContext(),ChooseLanguageActivity.class);
         startActivity(intent);
+        finish();
     }
 
     static int monthToNumerical(String month) {
