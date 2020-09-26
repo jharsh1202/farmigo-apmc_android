@@ -6,7 +6,8 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.widget.RadioButton;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -15,14 +16,10 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.ValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     static LineDataSet lineDataSetState1;
@@ -42,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     static ArrayList<Entry> dataVals;
     Spinner spinnerAPMC,spinnerState;
     ArrayList<StateVO> listState,listAPMC;
+    RadioButton radioButtonAPMC,getRadioButtonState;
 
     static String[] apmcmarkets,states;
     static String[] apmcs={"Select_APMC","Mumbai","Pune","Nagpur","Bhopal","Indore","Bangalore",
@@ -51,12 +49,14 @@ public class MainActivity extends AppCompatActivity {
     static String[] Karnataka={"Mysore","Belagavi","Bangalore"};
     static String[] Gujarat={"Surat","Ahmedabad"};
 
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lineChart = findViewById(R.id.graphss);
-        MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
 
         //Hindi Support
         hindiSupport();
@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
         setAPMCSpinner();
         //State Spinner Data
         setStateSpinner();
+
+        //radio
+        setRadioButtons();
 
         //for LineChart customization
         configureLineChart();
@@ -116,6 +119,28 @@ public class MainActivity extends AppCompatActivity {
         lineChart.invalidate();
     }
 
+    void setRadioButtons(){
+        radioButtonAPMC=findViewById(R.id.radioButtonAPMC);
+        getRadioButtonState=findViewById(R.id.radioButtonState);
+        spinnerAPMC.setEnabled(false);
+        spinnerState.setEnabled(false);
+
+        radioButtonAPMC.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spinnerAPMC.setEnabled(true);
+                spinnerState.setEnabled(false);
+            }
+        });
+        getRadioButtonState.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                spinnerState.setEnabled(true);
+                spinnerAPMC.setEnabled(false);
+            }
+        });
+    }
+
     static String[] setState(String statename){
         switch (statename){
             case "Maharashtra":return Maharashtra;
@@ -164,9 +189,9 @@ public class MainActivity extends AppCompatActivity {
         HindiState.put("मैसूर","Mysore");
         HindiState.put("बैंगलोर","Bangalore");
         HindiState.put("महाराष्ट्र","Maharashtra");
+        HindiState.put("कर्नाटक","Karnataka");
         HindiState.put("गुजरात","Gujarat");
         HindiState.put("मध्यप्रदेश","Madhya Pradesh");
-        HindiState.put("कर्नाटक","Karnataka");
 
     }
 
@@ -190,11 +215,12 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (!dataSets.isEmpty())
             {
+                Stateindex.remove(state);
                 for (String APMC:setState(state)) {
                     dataSets.remove(Stateindex.get(APMC));
                     APMCindex.remove(Stateindex.get(APMC));
                 }
-
+                Stateindex.remove(state);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -269,23 +295,31 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureLineChart() {
+        lineChart = findViewById(R.id.graphss);
+        lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
         Description desc = new Description();
-        MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
         desc.setText(getResources().getString(R.string.linechertdesc));
+
         desc.setTextSize(16);
         lineChart.setDescription(desc);
-
+        lineChart.isDrawBordersEnabled();
+        lineChart.setBorderWidth(1);
+        lineChart.setDrawBorders(true);
 
         XAxis xAxis = lineChart.getXAxis();
-        xAxis.setValueFormatter(new ValueFormatter() {
-            private final SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
+        xAxis.setLabelCount(11);
+        lineChart.getAxisRight().setEnabled(false);
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        final String[] month={getResources().getString(R.string.jan),getResources().getString(R.string.feb),
+                getResources().getString(R.string.mar),getResources().getString(R.string.apr),
+                getResources().getString(R.string.may),getResources().getString(R.string.jun),
+                getResources().getString(R.string.jul),getResources().getString(R.string.aug),
+                getResources().getString(R.string.sep),getResources().getString(R.string.oct),
+                getResources().getString(R.string.nov),getResources().getString(R.string.dec)};
 
-            @Override
-            public String getFormattedValue(float value) {
-                long millis = (long) value * 1000L;
-                return mFormat.format(new Date(millis));
-            }
-        });
+        //Setting labels in x-Axis
+        lineChart.getXAxis().setValueFormatter(new com.github.mikephil.charting.formatter.IndexAxisValueFormatter(month));
+
 
         for (int i = 0; i < dataSets.size(); i++) {
             dataSets.get(i).getColor(1);
@@ -293,17 +327,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void databaseSetup() {
-//        try {
-//            SQLiteDatabase onionDatabase=this.openOrCreateDatabase("onionpricek",MODE_PRIVATE,null);
-//            onionDatabase.execSQL("CREATE TABLE if not exists onionprices(id integer,state text,apmc text,month text,price integer)");
-//            Cursor c=onionDatabase.rawQuery("SELECT * from onionprices",null);
-//            c.moveToFirst();
-//            c.move(5);
-//            Log.i("databaseqq",c.getString(3));
-//
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
         try {
 
             SQLiteDatabase sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);

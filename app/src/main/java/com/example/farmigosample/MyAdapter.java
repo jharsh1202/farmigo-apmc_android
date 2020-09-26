@@ -18,17 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static android.content.Context.TELECOM_SERVICE;
-import static com.example.farmigosample.MainActivity.APMC;
 import static com.example.farmigosample.MainActivity.APMCSelected;
 import static com.example.farmigosample.MainActivity.APMCindex;
-import static com.example.farmigosample.MainActivity.Gujarat;
 import static com.example.farmigosample.MainActivity.HindiState;
-import static com.example.farmigosample.MainActivity.Karnataka;
-import static com.example.farmigosample.MainActivity.MadhyaPradesh;
-import static com.example.farmigosample.MainActivity.Maharashtra;
-import static com.example.farmigosample.MainActivity.apmcs;
 import static com.example.farmigosample.MainActivity.dataSets;
+import static com.example.farmigosample.MainActivity.lineChart;
 import static com.example.farmigosample.MainActivity.lineData;
 import static com.example.farmigosample.MainActivity.removeLineChart;
 import static com.example.farmigosample.MainActivity.removeLineChartState;
@@ -115,6 +109,9 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                             setLineChartState();
                     }
                     else if(!holder.mCheckBox.isChecked() ){
+                        if(dataSets.size()==0){
+                            lineChart.clear();
+                        }
                         if(Locale.getDefault().getDisplayLanguage().equals("English"))
                             MainActivity.APMCSelected = listAPMC.get(position).getTitle();
                         else
@@ -139,8 +136,10 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                     dataSets.clear();
                     lineData = new LineData(dataSets);
                     MainActivity.lineChart.setData(lineData);
-                    MainActivity.lineChart.clear();
-                    MainActivity.lineChart.setNoDataText(res.getString(R.string.apmcnotselected));
+                    if(MainActivity.APMCindex.isEmpty() && MainActivity.Stateindex.isEmpty()){
+                        lineChart.clear();
+                        lineChart.setNoDataText(res.getString(R.string.apmcnotselected));}
+
                 }
             }
         });
