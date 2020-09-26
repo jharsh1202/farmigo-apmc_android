@@ -4,6 +4,7 @@
         <string name="app_name"> फारमिगो सैम्पल </string>
         <string name="hindi">हिन्दी</string>
         <string name="apmc">मंडी</string>
+        <string name="changelanguage">क</string>
         <string name="showData">जानकारी देखें : </string>
         <string name="apmcnotselected">कृपया मंडी चुने</string>
         <string name="linechertdesc">प्याज बाजार मूल्य इतिहास</string>

@@ -7,7 +7,8 @@ import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
@@ -23,7 +24,6 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     static LineDataSet lineDataSetState1;
@@ -33,7 +33,6 @@ public class MainActivity extends AppCompatActivity {
     static HashMap<String, String> HindiState = new HashMap<>();
     static LineChart lineChart;
     static Cursor dataOnionPrice;
-    Button buttonchangeLanguage;
     static SQLiteDatabase sqLiteDatabase;
     public static String APMCSelected;
     public static int positionSelected;
@@ -54,11 +53,31 @@ public class MainActivity extends AppCompatActivity {
     static String[] Karnataka={"Mysore","Belagavi","Bangalore"};
     static String[] Gujarat={"Surat","Ahmedabad"};
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.changelang:
+                StartChooseLangActivity();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+
 
         //Hindi Support
         hindiSupport();
@@ -83,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
 
-        ChangeLanguageListener();
     }
 
 
@@ -508,14 +526,5 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    void ChangeLanguageListener(){
-        buttonchangeLanguage=findViewById(R.id.buttonChangeLanguage);
-        buttonchangeLanguage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(),ChooseLanguageActivity.class));
-                finish();
-            }
-        });
-    }
+
 }
