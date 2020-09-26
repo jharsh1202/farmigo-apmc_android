@@ -2,13 +2,11 @@ package com.example.farmigosample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Spinner;
 
 import com.github.mikephil.charting.charts.LineChart;
@@ -28,7 +26,10 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
     static LineDataSet lineDataSetState1;
+    static LineDataSet lineDataSetState2;
     static HashMap<String, LineDataSet> APMCindex = new HashMap<>();
+    static HashMap<String, LineDataSet> Stateindex = new HashMap<>();
+    static HashMap<String, String> HindiState = new HashMap<>();
     static LineChart lineChart;
     static Cursor dataOnionPrice;
     static SQLiteDatabase sqLiteDatabase;
@@ -39,10 +40,16 @@ public class MainActivity extends AppCompatActivity {
     static TypedArray ta;
     static int[] colors;
     static ArrayList<Entry> dataVals;
-    Spinner spinner;
-    static String[] apmcmarkets;
+    Spinner spinnerAPMC,spinnerState;
+    ArrayList<StateVO> listState,listAPMC;
+
+    static String[] apmcmarkets,states;
     static String[] apmcs={"Select_APMC","Mumbai","Pune","Nagpur","Bhopal","Indore","Bangalore",
             "Belagavi","Mysore","Ahmedabad", "Surat"};
+    static String[] Maharashtra={"Nagpur","Pune","Mumbai"};
+    static String[] MadhyaPradesh={"Bhopal","Indore"};
+    static String[] Karnataka={"Mysore","Belagavi","Bangalore"};
+    static String[] Gujarat={"Surat","Ahmedabad"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +58,12 @@ public class MainActivity extends AppCompatActivity {
         lineChart = findViewById(R.id.graphss);
         MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
 
+        //Hindi Support
+        hindiSupport();
         //APMC Spinner Data
         setAPMCSpinner();
+        //State Spinner Data
+        setStateSpinner();
 
         //for LineChart customization
         configureLineChart();
@@ -68,25 +79,31 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         for (int i = 0; i < apmcs.length; i++) {
-            MyAdapter.listState.get(i).setSelected(false);
+            listAPMC.get(i).setSelected(false);
             removeLineChart(apmcs[i]);
-            APMCindex.clear();
-            dataVals.clear();
-            dataSets.clear();
-            lineData = new LineData(dataSets);
-            MainActivity.lineChart.setData(lineData);
         }
+        for (int i = 0; i < states.length; i++) {
+            listState.get(i).setSelected(false);
+            removeLineChart(states[i]);
+        }
+
+        APMCindex.clear();
+        dataVals.clear();
+        dataSets.clear();
+        lineData = new LineData(dataSets);
+        MainActivity.lineChart.setData(lineData);
 
         MainActivity.lineChart.clear();
         MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
     }
 
-    static void setLineChart() {
-        lineDataSetState1 = new LineDataSet(State(), apmcmarkets[positionSelected]);
+    static void setLineChartAPMC() {
+        lineDataSetState1 = new LineDataSet(APMC(), apmcmarkets[positionSelected]);
         APMCindex.put(APMCSelected, lineDataSetState1);
         lineDataSetState1.setLineWidth(2);
         for (int i = 0; i < dataSets.size(); i++) {
@@ -97,6 +114,59 @@ public class MainActivity extends AppCompatActivity {
         lineData = new LineData(dataSets);
         lineChart.setData(lineData);
         lineChart.invalidate();
+    }
+
+    static String[] setState(String statename){
+        switch (statename){
+            case "Maharashtra":return Maharashtra;
+            case "Gujarat":return Gujarat;
+            case "Karnataka":return Karnataka;
+            case "Madhya Pradesh":return MadhyaPradesh;
+            default:return Maharashtra;
+        }
+    }
+
+    static void setLineChartState() {
+        int count=0;
+        String State=APMCSelected;
+
+        for (String M:setState(APMCSelected)){
+            if(count==1){
+                lineDataSetState2 = new LineDataSet(APMC(), State);
+                lineChart.getLegend().setEnabled(true);
+                count++;
+            }
+            APMCSelected=M;
+            lineDataSetState2 = new LineDataSet(APMC(), "");
+            lineChart.getLegend().setEnabled(true);
+            Stateindex.put(M, lineDataSetState2);
+            lineDataSetState2.setLineWidth(2);
+            int i=positionSelected;
+            colors[i] = ta.getColor(i, 0);
+            lineDataSetState2.setColor(colors[i]);
+            dataSets.add(lineDataSetState2);
+        }
+
+        lineData = new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.invalidate();
+    }
+
+    void hindiSupport(){
+        HindiState.put("मुंबई","Mumbai");
+        HindiState.put("नागपुर","Nagpur");
+        HindiState.put("पुणे","Pune");
+        HindiState.put("बेलगावी","Belagavi");
+        HindiState.put("सूरत","Surat");
+        HindiState.put("अहमदाबाद","Ahmedabad");
+        HindiState.put("भोपाल","Bhopal");
+        HindiState.put("इंदौर","Indore");
+        HindiState.put("मैसूर","Mysore");
+        HindiState.put("बैंगलोर","Bangalore");
+        HindiState.put("महाराष्ट्र","Maharashtra");
+        HindiState.put("गुजरात","Gujarat");
+        HindiState.put("मध्यप्रदेश","Madhya Pradesh");
+        HindiState.put("कर्नाटक","Karnataka");
 
     }
 
@@ -116,9 +186,28 @@ public class MainActivity extends AppCompatActivity {
         lineChart.invalidate();
     }
 
-    static protected ArrayList<Entry> State() {
+    public static void removeLineChartState(String state) {
+        try {
+            if (!dataSets.isEmpty())
+            {
+                for (String APMC:setState(state)) {
+                    dataSets.remove(Stateindex.get(APMC));
+                    APMCindex.remove(Stateindex.get(APMC));
+                }
 
-        dataVals = new ArrayList<Entry>();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        lineChart.clear();
+        lineData = new LineData(dataSets);
+        lineChart.setData(lineData);
+        lineChart.invalidate();
+    }
+
+    static protected ArrayList<Entry> APMC() {
+
+        dataVals = new ArrayList<>();
 
         if (APMCSelected != null)
             dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019 where apmc = " + '"' + APMCSelected + '"', null);
@@ -137,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         return dataVals;
     }
 
+
     void setAPMCSpinner() {
         apmcmarkets = new String[]{getResources().getString(R.string.select_APMC),
                 getResources().getString(R.string.mumbai),getResources().getString(R.string.pune),
@@ -145,18 +235,37 @@ public class MainActivity extends AppCompatActivity {
                 getResources().getString(R.string.belagavi),getResources().getString(R.string.mysore),
                 getResources().getString(R.string.ahmedabad),getResources().getString(R.string.surat)};
 
-        spinner = findViewById(R.id.spinner);
-        ArrayList<StateVO> listVOs = new ArrayList<>();
+        spinnerAPMC = findViewById(R.id.spinnerAPMC);
+        listAPMC = new ArrayList<>();
         ta = this.getResources().obtainTypedArray(R.array.colors);
         colors = new int[ta.length()];
         for (int i = 0; i < apmcmarkets.length; i++) {
-            StateVO stateVO = new StateVO();
-            stateVO.setTitle(apmcmarkets[i]);
-            stateVO.setSelected(false);
-            listVOs.add(stateVO);
+            StateVO stateAPMC = new StateVO();
+            stateAPMC.setTitle(apmcmarkets[i]);
+            stateAPMC.setSelected(false);
+            listAPMC.add(stateAPMC);
         }
-        MyAdapter myAdapter = new MyAdapter(MainActivity.this, 0, listVOs);
-        spinner.setAdapter(myAdapter);
+        MyAdapter myAdapter = new MyAdapter(MainActivity.this, 0, listAPMC);
+        spinnerAPMC.setAdapter(myAdapter);
+    }
+
+    void setStateSpinner() {
+        states = new String[]{getResources().getString(R.string.select_State),
+                getResources().getString(R.string.maharashtra),getResources().getString(R.string.madhyapradesh),
+                getResources().getString(R.string.karnataka),getResources().getString(R.string.gujrat)};
+
+        spinnerState = findViewById(R.id.spinnerState);
+        listState = new ArrayList<>();
+        ta = this.getResources().obtainTypedArray(R.array.colors);
+        colors = new int[ta.length()];
+        for (int i = 0; i < states.length; i++) {
+            StateVO state = new StateVO();
+            state.setTitle(states[i]);
+            state.setSelected(false);
+            listState.add(state);
+        }
+        MyAdapter stateAdapter=new MyAdapter(MainActivity.this,0,listState);
+        spinnerState.setAdapter(stateAdapter);
     }
 
     private void configureLineChart() {

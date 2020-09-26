@@ -2,6 +2,7 @@ package com.example.farmigosample;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,24 +16,33 @@ import com.github.mikephil.charting.data.LineData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import static android.content.Context.TELECOM_SERVICE;
+import static com.example.farmigosample.MainActivity.APMC;
 import static com.example.farmigosample.MainActivity.APMCSelected;
 import static com.example.farmigosample.MainActivity.APMCindex;
+import static com.example.farmigosample.MainActivity.Gujarat;
+import static com.example.farmigosample.MainActivity.HindiState;
+import static com.example.farmigosample.MainActivity.Karnataka;
+import static com.example.farmigosample.MainActivity.MadhyaPradesh;
+import static com.example.farmigosample.MainActivity.Maharashtra;
 import static com.example.farmigosample.MainActivity.apmcs;
 import static com.example.farmigosample.MainActivity.dataSets;
 import static com.example.farmigosample.MainActivity.lineData;
 import static com.example.farmigosample.MainActivity.removeLineChart;
-import static com.example.farmigosample.MainActivity.setLineChart;
+import static com.example.farmigosample.MainActivity.removeLineChartState;
+import static com.example.farmigosample.MainActivity.setLineChartAPMC;
+import static com.example.farmigosample.MainActivity.setLineChartState;
 
 public class MyAdapter extends ArrayAdapter<StateVO> {
-
     private class ViewHolder {
         private TextView mTextView;
         private CheckBox mCheckBox;
     }
 
     private Context mContext;
-    public static ArrayList<StateVO> listState;
+    public ArrayList<StateVO> listAPMC;
     private MyAdapter myAdapter;
     private boolean isFromView = false;
     Resources res = getContext().getResources();
@@ -40,7 +50,7 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
     public MyAdapter(Context context, int resource, List<StateVO> objects) {
         super(context, resource, objects);
         this.mContext = context;
-        this.listState = (ArrayList<StateVO>) objects;
+        this.listAPMC = (ArrayList<StateVO>) objects;
         this.myAdapter = this;
     }
 
@@ -69,11 +79,11 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
             holder = (ViewHolder) convertView.getTag();
         }
 
-        holder.mTextView.setText(listState.get(position).getTitle());
+        holder.mTextView.setText(listAPMC.get(position).getTitle());
 
         // To check weather checked event fire from getview() or user input
         isFromView = true;
-        holder.mCheckBox.setChecked(listState.get(position).isSelected());
+        holder.mCheckBox.setChecked(listAPMC.get(position).isSelected());
         isFromView = false;
 
         if ((position == 0)) {
@@ -89,23 +99,37 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                 int getPosition = (Integer) buttonView.getTag();
 
                 if (!isFromView) {
-                    listState.get(position).setSelected(isChecked);
-                    if (holder.mCheckBox.isChecked()==true ){
-                        MainActivity.APMCSelected = apmcs[position];
+                    listAPMC.get(position).setSelected(isChecked);
+                    if (holder.mCheckBox.isChecked()){
+
+                        if(Locale.getDefault().getDisplayLanguage().equals("English"))
+                            MainActivity.APMCSelected = listAPMC.get(position).getTitle();
+                        else
+                            MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
+
                         MainActivity.positionSelected=position; //for APMC Label in setLineChart()
-                        //MainActivity.APMCindex.get(MainActivity.APMCSelected);
-                        setLineChart();
+
+                        if (listAPMC.size()>5)
+                            setLineChartAPMC();
+                        else
+                            setLineChartState();
                     }
-                    else if(holder.mCheckBox.isChecked()==false ){
-                        //MainActivity.positionSelected=position;
-                        MainActivity.APMCSelected = apmcs[position];
+                    else if(!holder.mCheckBox.isChecked() ){
+                        if(Locale.getDefault().getDisplayLanguage().equals("English"))
+                            MainActivity.APMCSelected = listAPMC.get(position).getTitle();
+                        else
+                            MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
+                        if(listAPMC.size()>5)
                             removeLineChart(APMCSelected);
+                        else
+                            removeLineChartState(APMCSelected);
                     }
                 }
 
+                //if Empty
                 boolean dataPresent=false;
-                for (int i = 0; i < apmcs.length; i++) {
-                       if (listState.get(i).isSelected()){
+                for (int i = 0; i < listAPMC.size(); i++) {
+                       if (listAPMC.get(i).isSelected()){
                             dataPresent=true;
                        }
                 }
@@ -118,8 +142,6 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                     MainActivity.lineChart.clear();
                     MainActivity.lineChart.setNoDataText(res.getString(R.string.apmcnotselected));
                 }
-
-
             }
         });
         return convertView;

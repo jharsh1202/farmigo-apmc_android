@@ -4,15 +4,21 @@
     <string name="apmc">APMC</string>
     <string name="apmcnotselected">No APMC Selected</string>
     <string name="linechertdesc">Onion Market Price History</string>
+    <string name="state">State</string>
+    <string name="select_State">Select State</string>
+    <string name="maharashtra">Maharashtra</string>
+    <string name="madhyapradesh">Madhya Pradesh</string>
+    <string name="gujrat">Gujarat</string>
+    <string name="karnataka">Karnataka</string>
     <string name="select_APMC">Select APMC</string>
     <string name="mumbai">Mumbai</string>
     <string name="pune">Pune</string>
     <string name="nagpur">Nagpur</string>
     <string name="bhopal">Bhopal</string>
-    <string name="indore">Indore" </string>
+    <string name="indore">Indore</string>
     <string name="bangalore">Bangalore</string>
     <string name="belagavi">Belagavi</string>
-    <string name="mysore"> "Mysore</string>
+    <string name="mysore">Mysore</string>
     <string name="surat">Surat</string>
     <string name="ahmedabad">Ahmedabad</string>
 
