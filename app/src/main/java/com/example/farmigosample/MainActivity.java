@@ -2,12 +2,14 @@ package com.example.farmigosample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
@@ -21,6 +23,7 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
     static LineDataSet lineDataSetState1;
@@ -30,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     static HashMap<String, String> HindiState = new HashMap<>();
     static LineChart lineChart;
     static Cursor dataOnionPrice;
+    Button buttonchangeLanguage;
     static SQLiteDatabase sqLiteDatabase;
     public static String APMCSelected;
     public static int positionSelected;
@@ -74,11 +78,15 @@ public class MainActivity extends AppCompatActivity {
             sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
             dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
         } catch (Exception e) {
+            StartChooseLangActivity();
             databaseSetup();
-            sqLiteDatabase = this.openOrCreateDatabase("OnionPricesDb", 0, null);
-            dataOnionPrice = sqLiteDatabase.rawQuery("SELECT * FROM onionprice2019", null);
+            finish();
         }
+
+        ChangeLanguageListener();
     }
+
+
 
 
     @Override
@@ -93,11 +101,16 @@ public class MainActivity extends AppCompatActivity {
             removeLineChart(states[i]);
         }
 
-        APMCindex.clear();
-        dataVals.clear();
-        dataSets.clear();
-        lineData = new LineData(dataSets);
-        MainActivity.lineChart.setData(lineData);
+        try {
+            APMCindex.clear();
+            dataVals.clear();
+            dataSets.clear();
+            lineData = new LineData(dataSets);
+            MainActivity.lineChart.setData(lineData);
+        }
+        catch (Exception e){
+
+        }
 
         MainActivity.lineChart.clear();
         MainActivity.lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
@@ -459,6 +472,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void StartChooseLangActivity(){
+        Intent intent=new Intent(getApplicationContext(),ChooseLanguageActivity.class);
+        startActivity(intent);
+    }
+
     static int monthToNumerical(String month) {
         switch (month) {
             case "Jan":
@@ -488,5 +506,16 @@ public class MainActivity extends AppCompatActivity {
             default:
                 return 12;
         }
+    }
+
+    void ChangeLanguageListener(){
+        buttonchangeLanguage=findViewById(R.id.buttonChangeLanguage);
+        buttonchangeLanguage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(),ChooseLanguageActivity.class));
+                finish();
+            }
+        });
     }
 }

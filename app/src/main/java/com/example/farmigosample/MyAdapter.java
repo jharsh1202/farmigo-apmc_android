@@ -1,7 +1,10 @@
 package com.example.farmigosample;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.icu.util.ULocale;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +14,8 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+
+import androidx.annotation.RequiresApi;
 
 import com.github.mikephil.charting.data.LineData;
 
@@ -39,6 +44,7 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
     private Context mContext;
     public ArrayList<StateVO> listAPMC;
     private MyAdapter myAdapter;
+    String lang;
     private boolean isFromView = false;
     Resources res = getContext().getResources();
 
@@ -89,6 +95,7 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
         holder.mCheckBox.setTag(position);
         holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 int getPosition = (Integer) buttonView.getTag();
@@ -97,21 +104,25 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                     listAPMC.get(position).setSelected(isChecked);
                     if (holder.mCheckBox.isChecked()){
 
-                        if(Locale.getDefault().getDisplayLanguage().equals("English"))
-                            MainActivity.APMCSelected = listAPMC.get(position).getTitle();
-                        else
-                            MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
-
                         MainActivity.positionSelected=position; //for APMC Label in setLineChart()
+                        lang=getContext().getResources().getConfiguration().getLocales().get(0).toString();
+                        if(lang.equals("en_US") || lang.equals("en")) {
+                                MainActivity.APMCSelected = listAPMC.get(position).getTitle();
+                            }
+                        else{
+                            MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
+                        }
 
                         if (listAPMC.size()>5)
-                            setLineChartAPMC();
+                           {
+                               setLineChartAPMC();
+                           }
                         else
                             setLineChartState();
                     }
                     else if(!holder.mCheckBox.isChecked() ){
 
-                        if(Locale.getDefault().getDisplayLanguage().equals("English"))
+                        if(lang.equals("en_US") || lang.equals("en"))
                             MainActivity.APMCSelected = listAPMC.get(position).getTitle();
                         else
                             MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
@@ -140,11 +151,6 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                     }*/
 
                 }
-
-
-
-
-
             }
 
         });
