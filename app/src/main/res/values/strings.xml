@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">FarmiGo Sample</string>
     <string name="apmc">APMC</string>
+    <string name="hindi">हिन्दी</string>
     <string name="showData">Show Data :</string>
     <string name="apmcnotselected">No APMC Selected</string>
     <string name="linechertdesc">Onion Market Price History</string>
