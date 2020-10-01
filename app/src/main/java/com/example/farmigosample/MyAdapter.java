@@ -46,7 +46,6 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
     private MyAdapter myAdapter;
     String lang;
     private boolean isFromView = false;
-    Resources res = getContext().getResources();
 
     public MyAdapter(Context context, int resource, List<StateVO> objects) {
         super(context, resource, objects);
@@ -126,14 +125,12 @@ public class MyAdapter extends ArrayAdapter<StateVO> {
                             MainActivity.APMCSelected = listAPMC.get(position).getTitle();
                         else
                             MainActivity.APMCSelected = HindiState.get(listAPMC.get(position).getTitle());
-                        if(listAPMC.size()>5){
+                        if (listAPMC.size() > 5) {
                             removeLineChart(APMCSelected);
-                            checkEmpty();
-                        }
-                        else{
+                        } else {
                             removeLineChartState(APMCSelected);
-                            checkEmpty();
                         }
+                        checkEmpty();
                     }
                     /*//if Empty
                     boolean dataPresent=false;

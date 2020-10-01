@@ -1,16 +1,20 @@
 package com.example.farmigosample;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 
@@ -20,12 +24,16 @@ import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnChartValueSelectedListener {
     static LineDataSet lineDataSetState1;
     static LineDataSet lineDataSetState2;
     static HashMap<String, LineDataSet> APMCindex = new HashMap<>();
@@ -44,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
     Spinner spinnerAPMC,spinnerState;
     ArrayList<StateVO> listState,listAPMC;
     RadioButton radioButtonAPMC,getRadioButtonState;
+    YourMarkerView yourMarkerView;
 
     static String[] apmcmarkets,states;
     static String[] apmcs={"Select_APMC","Mumbai","Pune","Nagpur","Bhopal","Indore","Bangalore",
@@ -71,12 +80,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
 
 
         //Hindi Support
@@ -138,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         lineDataSetState1 = new LineDataSet(APMC(), apmcmarkets[positionSelected]);
         APMCindex.put(APMCSelected, lineDataSetState1);
         lineDataSetState1.setLineWidth(2);
+        lineDataSetState1.setDrawValues(false);
         for (int i = 0; i < dataSets.size(); i++) {
             colors[i] = APMCcolors.getColor(i, 0);
             lineDataSetState1.setColor(colors[i]);
@@ -178,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
 
     static String[] setState(String statename){
         switch (statename){
-            case "Maharashtra":return Maharashtra;
+            case "Maharashtra": return Maharashtra;
             case "Gujarat":return Gujarat;
             case "Karnataka":return Karnataka;
             case "Madhya Pradesh":return MadhyaPradesh;
@@ -203,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
 
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
+            lineDataSetState2.setDrawValues(false);
             int i=positionSelected;
             colors[i] = Statescolors.getColor(i, 0);
             lineDataSetState2.setColor(colors[i]);
@@ -326,7 +336,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void configureLineChart() {
+
+        //IMarker marker = new YourMarkerView();
         lineChart = findViewById(R.id.graphss);
+        lineChart.setHighlightPerTapEnabled(true);
+        lineChart.setHighlightPerDragEnabled(true);
+        yourMarkerView = new YourMarkerView(this,R.layout.popup_value);
+        lineChart.setMarkerView(yourMarkerView);
+        lineChart.setOnChartValueSelectedListener(this);
+        //lineChart.setMarker(marker);
         lineChart.setNoDataText(getResources().getString(R.string.apmcnotselected));
         Description desc = new Description();
         desc.setText(getResources().getString(R.string.linechertdesc));
@@ -526,6 +544,17 @@ public class MainActivity extends AppCompatActivity {
                 return 12;
         }
     }
+
+
+    @Override
+    public void onValueSelected(Entry e, Highlight h) {
+    }
+
+    @Override
+    public void onNothingSelected() {
+
+    }
+
 
 
 }

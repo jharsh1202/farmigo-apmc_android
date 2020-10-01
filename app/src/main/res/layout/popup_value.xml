@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingStart="0dp">
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_alignLeft="@id/activation_layout"
+        android:layout_alignTop="@+id/activation_layout"
+        android:layout_alignRight="@id/activation_layout"
+        android:layout_alignBottom="@id/activation_layout"
+        android:scaleType="fitXY"
+        android:src="@drawable/marker2" />
+
+    <LinearLayout
+        android:id="@id/activation_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:clipToPadding="true"
+        android:orientation="vertical">
+        <!-- LinearLayout wraps a bunch of smallish views here -->
+        <TextView
+            android:id="@+id/tvContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="2dp"
+            android:layout_marginBottom="15dp"
+            android:ellipsize="end"
+            android:singleLine="false"
+            android:text="adfs\ndgss"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+</RelativeLayout>
+
+<!--<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    android:layout_width="wrap_content"-->
+<!--    android:layout_height="wrap_content"-->
+<!--    android:background="@drawable/marker2">-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/tvContent"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:layout_marginTop="7dp"-->
+<!--        android:ellipsize="end"-->
+<!--        android:singleLine="true"-->
+<!--        android:textAppearance="?android:attr/textAppearanceSmall"-->
+<!--        android:textColor="@android:color/white" />-->
+<!--</RelativeLayout>-->
