@@ -28,6 +28,8 @@ import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.MPPointF;
+import com.github.mikephil.charting.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -213,7 +215,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 //  for printing selected states in label
 //lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
 
-            lineDataSetState2 = new LineDataSet(APMC(), M);
+
+            lineDataSetState2 = new LineDataSet(APMC(), HindiState.get(M));
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
             lineDataSetState2.setDrawValues(false);
@@ -247,6 +250,16 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         HindiState.put("कर्नाटक","Karnataka");
         HindiState.put("गुजरात","Gujarat");
         HindiState.put("मध्यप्रदेश","Madhya Pradesh");
+        HindiState.put("Mumbai",getResources().getString(R.string.mumbai));
+        HindiState.put("Pune",getResources().getString(R.string.pune));
+        HindiState.put("Nagpur",getResources().getString(R.string.nagpur));
+        HindiState.put("Bhopal",getResources().getString(R.string.bhopal));
+        HindiState.put("Indore",getResources().getString(R.string.indore));
+        HindiState.put("Bangalore",getResources().getString(R.string.bangalore));
+        HindiState.put("Belagavi",getResources().getString(R.string.belagavi));
+        HindiState.put("Mysore",getResources().getString(R.string.mysore));
+        HindiState.put("Ahemdabad",getResources().getString(R.string.ahmedabad));
+        HindiState.put("Surat",getResources().getString(R.string.surat));
     }
 
     public static void removeLineChart(String APMC) {
@@ -347,6 +360,7 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
 
         //IMarker marker = new YourMarkerView();
         lineChart = findViewById(R.id.graphss);
+
         lineChart.setHighlightPerTapEnabled(true);
         lineChart.setHighlightPerDragEnabled(true);
         yourMarkerView = new YourMarkerView(this,R.layout.popup_value);
@@ -381,6 +395,8 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         for (int i = 0; i < dataSets.size(); i++) {
             dataSets.get(i).getColor(1);
         }
+
+        lineChart.getLegend().setWordWrapEnabled(true);
     }
 
     void databaseSetup() {
