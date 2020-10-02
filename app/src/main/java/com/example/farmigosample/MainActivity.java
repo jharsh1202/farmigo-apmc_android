@@ -202,22 +202,28 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
         for (String M:setState(APMCSelected)){
             APMCSelected=M;
 
-            //for removing last label
+//  for removing last label
+
 //            //creating line data object
 //            if(count++==setState(State).length-1)
 //                lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
 //            else
 //                lineDataSetState2 = new LineDataSet(APMC(),"");
 
-            //lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]); for printing selected states in label
+//  for printing selected states in label
+//lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
 
             lineDataSetState2 = new LineDataSet(APMC(), M);
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
             lineDataSetState2.setDrawValues(false);
-            int i=positionSelected;
-            colors[i] = Statescolors.getColor(i, 0);
-            lineDataSetState2.setColor(colors[i]);
+            //int i=positionSelected;
+            //colors[i] = Statescolors.getColor(i, 0); for same color in all APMC in state
+            //lineDataSetState2.setColor(colors[i]);
+            for (int i = 0; i < dataSets.size(); i++) {
+                colors[i] = APMCcolors.getColor(i, 0);
+                lineDataSetState2.setColor(colors[i]);
+            }
             dataSets.add(lineDataSetState2);
         }
 
