@@ -196,20 +196,22 @@ public class MainActivity extends AppCompatActivity implements OnChartValueSelec
     }
 
     static void setLineChartState() {
-        int count=0;
-        String State=APMCSelected;
+        //int count=0;
+        //String State=APMCSelected;
 
         for (String M:setState(APMCSelected)){
             APMCSelected=M;
 
-            //creating line data object
-            if(count++==setState(State).length-1)
-                lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
-            else
-                {
-                    lineDataSetState2 = new LineDataSet(APMC(),"");
-                }
+            //for removing last label
+//            //creating line data object
+//            if(count++==setState(State).length-1)
+//                lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]);
+//            else
+//                lineDataSetState2 = new LineDataSet(APMC(),"");
 
+            //lineDataSetState2 = new LineDataSet(APMC(), states[positionSelected]); for printing selected states in label
+
+            lineDataSetState2 = new LineDataSet(APMC(), M);
             Stateindex.put(M, lineDataSetState2);
             lineDataSetState2.setLineWidth(2);
             lineDataSetState2.setDrawValues(false);
